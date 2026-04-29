@@ -15,6 +15,12 @@ plugs = [
         configs={},
     ),
     Plug(
+        name="care_radiology",
+        package_name="git+https://github.com/care-ecosystem/care_radiology.git",
+        version="@updates",
+        configs={},
+    ),
+    Plug(
         name="care_scribe",
         package_name="git+https://github.com/10bedicu/care_scribe.git",
         version="@master",
