@@ -1,5 +1,7 @@
+import os
 from plugs.manager import PlugManager
 from plugs.plug import Plug
+
 
 plugs = [
     Plug(
@@ -18,7 +20,14 @@ plugs = [
         name="care_radiology",
         package_name="git+https://github.com/care-ecosystem/care_radiology.git",
         version="@updates",
-        configs={},
+        configs={
+        "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL": os.getenv(
+            "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL"
+        ),
+        "CARE_RADIOLOGY_WEBHOOK_SECRET": os.getenv(
+            "CARE_RADIOLOGY_WEBHOOK_SECRET"
+        )
+        }
     ),
     Plug(
         name="care_scribe",
