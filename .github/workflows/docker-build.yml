@@ -6,7 +6,6 @@ on:
       - develop
       - deployment
       - main
-      - plugins
       - production
     tags:
       - 'v*'
