@@ -6,9 +6,11 @@ on:
       - develop
       - deployment
       - main
+      - plugins
       - production
     tags:
       - 'v*'
+
   workflow_dispatch:
     inputs:
       tag:
@@ -28,6 +30,7 @@ jobs:
   build-and-push:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
@@ -38,6 +41,11 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Set short SHA
+        id: vars
+        run: |
+          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -51,22 +59,47 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
           tags: |
+            # Branch name
             type=ref,event=branch
+
+            # Semantic version tags
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+
+            # SHA tag
             type=sha,prefix=sha-
+
+            # Latest tag only for main/production
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production' }}
+
+            # Manual custom tag
             type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
+
+            # branch-shortsha
+            type=raw,value=${{ github.ref_name }}-${{ steps.vars.outputs.SHORT_SHA }}
+
+            # branch-runNumber-shortsha
+            type=raw,value=${{ github.ref_name }}-${{ github.run_number }}-${{ steps.vars.outputs.SHORT_SHA }}
+
+          labels: |
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.run_id }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: docker/prod.Dockerfile    # Important: Dockerfile is NOT in root!
+          file: docker/prod.Dockerfile
+
           push: true
+
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -74,9 +107,17 @@ jobs:
         run: |
           echo "## Docker Image Built Successfully! :whale:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
           echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit SHA:** \`${{ steps.vars.outputs.SHORT_SHA }}\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
