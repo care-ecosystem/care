@@ -3,9 +3,10 @@ from plugs.manager import PlugManager
 from plugs.plug import Plug
 
 plugs = [
+    
     Plug(
         name="abdm",
-        package_name="git+https://github.com/10bedicu/care_abdm.git",
+        package_name="git+https://github.com/care-ecosystem/care_abdm.git",
         version="@develop",
         configs={},
     ),
@@ -35,7 +36,7 @@ plugs = [
         configs={
         "HOST": "https://sandbox.digit.org",
         "DIGIT_TOKEN_ENDPOINT": "/user/oauth/token",
-        "DIGIT_HEADER_AUTH_TOKEN": "SOME_TOKEN",
+        "DIGIT_HEADER_AUTH_TOKEN": "ZWdvdi11c2VyLWNsaWVudDo=",
         "PGR_CREATE_ENDPOINT": "/pgr-services/v2/request/_create",
         "PGR_FETCH_ENDPOINT": "/pgr-services/v2/request/_search",
         "FILESTORE_UPLOAD_ENDPOINT": "/filestore/v1/files",
