@@ -4,12 +4,12 @@ from plugs.plug import Plug
 
 plugs = [
     
-    Plug(
-        name="abdm",
-        package_name="git+https://github.com/care-ecosystem/care_abdm.git",
-        version="@develop",
-        configs={},
-    ),
+    # Plug(
+    #     name="abdm",
+    #     package_name="git+https://github.com/care-ecosystem/care_abdm.git",
+    #     version="@develop",
+    #     configs={},
+    # ),
     Plug(
         name="nhcx",
         package_name="git+https://github.com/ohcnetwork/care_nhcx.git",
