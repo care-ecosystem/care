@@ -51,6 +51,12 @@ plugs = [
         package_name="git+https://github.com/10bedicu/care_scribe.git",
         version="@master",
         configs={},
+    ),
+    Plug(
+        name="care_communication",
+        package_name="git+https://github.com/care-ecosystem/care_communication_plugin.git",
+        version="@updates",
+        configs={},
     )
 ]
 
