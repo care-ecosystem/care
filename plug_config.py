@@ -58,8 +58,11 @@ plugs = [
         version="@main",
         configs={
             "EAUSHADHI_API_ENDPOINT": os.getenv(
-            "EAUSHADHI_API_ENDPOINT"
+                "EAUSHADHI_API_ENDPOINT"
             ),
+            "EAUSHADHI_API_RETRY_COUNT": os.getenv(
+                "EAUSHADHI_API_RETRY_COUNT"
+            )
             "EAUSHADHI_API_SECRET_KEY": os.getenv(
                 "EAUSHADHI_API_SECRET_KEY"
             )
