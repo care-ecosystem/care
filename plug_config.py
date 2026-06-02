@@ -62,7 +62,7 @@ plugs = [
             ),
             "EAUSHADHI_API_RETRY_COUNT": os.getenv(
                 "EAUSHADHI_API_RETRY_COUNT"
-            )
+            ),
             "EAUSHADHI_API_SECRET_KEY": os.getenv(
                 "EAUSHADHI_API_SECRET_KEY"
             )
