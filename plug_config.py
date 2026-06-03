@@ -20,7 +20,7 @@ plugs = [
     Plug(
         name="care_super_batch_be",
         package_name="care_super_batch_be",
-        package_name="git+https://github.com/ohcnetwork/care_super_batch_be.git",
+        package_name="git+https://github.com/care-ecosystem/care_super_batch_be.git",
         version="@main",
         configs={},
     ),
