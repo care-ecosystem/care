@@ -18,7 +18,7 @@ plugs = [
     # ),
 
     Plug(
-        name="care_super_batch_be",
+        name="super_batch_request",
         package_name="git+https://github.com/care-ecosystem/care_super_batch_be.git",
         version="@main",
         configs={},
