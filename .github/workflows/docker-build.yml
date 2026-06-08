@@ -9,7 +9,10 @@ on:
       - production
     tags:
       - 'v*'
-
+      
+  repository_dispatch:
+    types: [eaushadhi-plugin-updated]
+    
   workflow_dispatch:
     inputs:
       tag:
