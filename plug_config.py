@@ -58,7 +58,6 @@ plugs = [
         version="@master",
         configs={},
     ),
-    
     Plug(
         name="care_eaushadhi",
         package_name="git+https://github.com/care-ecosystem/care_eaushadhi.git",
