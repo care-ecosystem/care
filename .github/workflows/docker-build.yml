@@ -102,8 +102,10 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
 
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          # Disable cache when triggered by plugin updates to ensure fresh build
+          cache-from: ${{ github.event_name != 'repository_dispatch' && 'type=gha' || '' }}
+          cache-to: ${{ github.event_name != 'repository_dispatch' && 'type=gha,mode=max' || '' }}
+          no-cache: ${{ github.event_name == 'repository_dispatch' }}
 
       - name: Output image details
         run: |
