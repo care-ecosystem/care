@@ -67,6 +67,7 @@ plugs = [
             "EAUSHADHI_API_ENDPOINT": os.getenv(
                 "EAUSHADHI_API_ENDPOINT"
             ),
+            "EAUSHADHI_DEPLOYMENT": "karnataka",
             "EAUSHADHI_API_SECRET_KEY": os.getenv(
                 "EAUSHADHI_API_SECRET_KEY"
             ),
