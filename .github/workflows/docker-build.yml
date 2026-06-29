@@ -121,8 +121,6 @@ jobs:
           file: docker/prod.Dockerfile
           platforms: ${{ matrix.platform }}
           push: true
-          # Push staging tags to all three image repos so manifest job
-          # can look up digests per-repo without cross-repo mismatch
           tags: |
             ${{ env.REGISTRY }}/care-ecosystem/care:${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}-${{ matrix.arch }}
             ${{ env.REGISTRY }}/care-ecosystem/care-backend:${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}-${{ matrix.arch }}
@@ -159,7 +157,7 @@ jobs:
           echo "${{ needs.prepare.outputs.tags }}" | while IFS= read -r FULL_TAG; do
             [ -z "$FULL_TAG" ] && continue
 
-            IMAGE="${FULL_TAG%%:*}"   # e.g. ghcr.io/care-ecosystem/care-backend
+            IMAGE="${FULL_TAG%%:*}"
 
             echo "→ Resolving digests for ${IMAGE}:${STAGING_TAG}-amd64 / arm64"
 
