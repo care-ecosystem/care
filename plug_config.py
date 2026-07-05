@@ -73,6 +73,9 @@ plugs = [
             ),
             "EAUSHADHI_API_RETRY_COUNT": os.getenv(
                 "EAUSHADHI_API_RETRY_COUNT"
+            ),
+            "EAUSHADHI_VALIDATION_ENABLED": os.getenv(
+                "EAUSHADHI_VALIDATION_ENABLED"
             )
         }
     ),
