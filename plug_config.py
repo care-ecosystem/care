@@ -9,14 +9,14 @@ plugs = [
     #     version="@develop",
     #     configs={},
     # ),
-    
+
     # Plug(
     #     name="nhcx",
     #     package_name="git+https://github.com/ohcnetwork/care_nhcx.git",
     #     version="@develop",
     #     configs={},
     # ),
-    
+
     Plug(
         name="super_batch_request",
         package_name="git+https://github.com/care-ecosystem/care_super_batch_be.git",
@@ -25,8 +25,10 @@ plugs = [
     ),
     Plug(
         name="care_radiology",
-        package_name="git+https://github.com/care-ecosystem/care_radiology.git",
-        version="@main",
+        package_name="/Users/jagankumar/Office/Work/repo/Care/care_radiology",
+        version="",  # Empty for local path
+        # package_name="git+https://github.com/care-ecosystem/care_radiology.git",
+        # version="@updates",
         configs={
             "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL": os.getenv(
                 "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL"
@@ -35,6 +37,22 @@ plugs = [
                 "CARE_RADIOLOGY_WEBHOOK_SECRET"
             )
         }
+    ),
+     Plug(
+        name="gateway_device",
+         package_name="/Users/jagankumar/Office/Work/repo/Care/teleicu_gateway",
+        version="",  # Empty for local path
+        # package_name="git+https://github.com/ohcnetwork/care_teleicu_devices.git",
+        # version="@main",
+        configs={},
+    ),
+    Plug(
+        name="camera_device",
+         package_name="/Users/jagankumar/Office/Work/repo/Care/care_teleicu_devices",
+        version="",  # Empty for local path
+        # package_name="git+https://github.com/ohcnetwork/care_teleicu_devices.git",
+        # version="@main",
+        configs={},
     ),
      Plug(
         name="care_digit_integration",
@@ -61,26 +79,28 @@ plugs = [
     ),
     Plug(
         name="care_eaushadhi",
-        package_name="git+https://github.com/care-ecosystem/care_eaushadhi.git",
-        version="@main",
+        package_name="/Users/jagankumar/Office/Work/repo/Care/care_eaushadhi",
+        version="",  # Empty for local path
+        # package_name="git+https://github.com/care-ecosystem/care_eaushadhi.git",
+        # version="@main",
         configs={
-            "EAUSHADHI_API_ENDPOINT": os.getenv(
-                "EAUSHADHI_API_ENDPOINT"
-            ),
-            "EAUSHADHI_API_SECRET_KEY": os.getenv(
-                "EAUSHADHI_API_SECRET_KEY"
-            ),
-            "EAUSHADHI_API_RETRY_COUNT": os.getenv(
-                "EAUSHADHI_API_RETRY_COUNT"
-            )
+            # "EAUSHADHI_API_ENDPOINT": os.getenv(
+            #     "EAUSHADHI_API_ENDPOINT"
+            # ),
+            # "EAUSHADHI_API_SECRET_KEY": os.getenv(
+            #     "EAUSHADHI_API_SECRET_KEY"
+            # ),
+            # "EAUSHADHI_API_RETRY_COUNT": os.getenv(
+            #     "EAUSHADHI_API_RETRY_COUNT"
+            # )
         }
     ),
-    Plug(
-        name="care_communication",
-        package_name="git+https://github.com/care-ecosystem/care_communication_plugin.git",
-        version="@updates",
-        configs={},
-    )
+    # Plug(
+    #     name="care_communication",
+    #     package_name="git+https://github.com/care-ecosystem/care_communication_plugin.git",
+    #     version="@updates",
+    #     configs={},
+    # )
 ]
 
 manager = PlugManager(plugs)

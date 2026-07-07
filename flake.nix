@@ -268,6 +268,10 @@
         runDev = makeScript "rundev" ''
           source .venv/bin/activate
 
+          # Export environment variables for Django
+          export DJANGO_READ_DOT_ENV_FILE=true
+          export DJANGO_SETTINGS_MODULE=config.settings.local
+
           echo "🚀 Starting unified Care development environment..."
 
           # Wait for services (using Nix bash)
