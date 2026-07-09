@@ -84,9 +84,15 @@ plugs = [
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
         version="@main",
         configs={
-            "PINELABS_MERCHANT_ID":"87059948-4298-407f-b4be-ea673b6e8d7b",
-            "PINELABS_SECURITY_TOKEN": "6c5d142d9c8b4641bb30c3f7a1e54744",
-            "PINELABS_API_BASE_URL": "https://pluraluat.v2.pinepg.in"
+            "PINELABS_MERCHANT_ID": os.getenv(
+                "PINELABS_MERCHANT_ID"
+            ),
+            "PINELABS_SECURITY_TOKEN": os.getenv(
+                "PINELABS_SECURITY_TOKEN"
+            ),
+            "PINELABS_API_BASE_URL": os.getenv(
+                "PINELABS_API_BASE_URL"
+            )
         }
     ),
     Plug(
