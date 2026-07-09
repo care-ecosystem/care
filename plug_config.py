@@ -78,6 +78,15 @@ plugs = [
                 "EAUSHADHI_VALIDATION_ENABLED"
             )
         }
+    ),  
+    Plug(
+        name="care_pinelabs",
+        package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
+        version="@main",
+        configs={
+            "PINELABS_MERCHANT_ID":"87059948-4298-407f-b4be-ea673b6e8d7b",
+            "PINELABS_SECURITY_TOKEN": "6c5d142d9c8b4641bb30c3f7a1e54744"
+        }
     ),
     Plug(
         name="care_communication",
