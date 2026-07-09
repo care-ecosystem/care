@@ -85,7 +85,8 @@ plugs = [
         version="@main",
         configs={
             "PINELABS_MERCHANT_ID":"87059948-4298-407f-b4be-ea673b6e8d7b",
-            "PINELABS_SECURITY_TOKEN": "6c5d142d9c8b4641bb30c3f7a1e54744"
+            "PINELABS_SECURITY_TOKEN": "6c5d142d9c8b4641bb30c3f7a1e54744",
+            "PINELABS_API_BASE_URL": "https://pluraluat.v2.pinepg.in"
         }
     ),
     Plug(
