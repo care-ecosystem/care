@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - develop
+      - dev
       - main
       - plugins
       - production
     tags:
       - 'v*'
+
+  repository_dispatch:
+    types: [eaushadhi-plugin-updated, radiology-plugin-updated]
 
   workflow_dispatch:
     inputs:
@@ -26,13 +30,65 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-and-push:
-    name: Build and Push Docker Image
+  # ── Job 1: Compute tags/labels once, share across arch jobs ──────────────────
+  prepare:
+    name: Prepare Metadata
     runs-on: ubuntu-latest
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
+      short_sha: ${{ steps.vars.outputs.SHORT_SHA }}
 
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set short SHA
+        id: vars
+        run: echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.REGISTRY }}/care-ecosystem/care-backend
+            ${{ env.REGISTRY }}/care-ecosystem/care-celery
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production' }}
+            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
+            type=raw,value=${{ github.ref_name }}-${{ steps.vars.outputs.SHORT_SHA }}
+            type=raw,value=${{ github.ref_name }}-${{ github.run_number }}-${{ steps.vars.outputs.SHORT_SHA }}
+          labels: |
+            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.created=${{ github.run_id }}
+
+  # ── Job 2: Build per-arch images, push arch-suffixed staging tags ─────────────
+  build-matrix:
+    name: Build (${{ matrix.arch }})
+    needs: prepare
+    runs-on: ${{ matrix.runner }}
     permissions:
       contents: read
       packages: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            platform: linux/amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            platform: linux/arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - name: Checkout repository
@@ -41,73 +97,110 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Set short SHA
-        id: vars
-        run: |
-          echo "SHORT_SHA=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Log in to GitHub Container Registry
+      - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels)
-        id: meta
-        uses: docker/metadata-action@v5
+      - name: Cache Docker layers
+        if: github.event_name != 'repository_dispatch'
+        uses: actions/cache@v4
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-${{ matrix.arch }}-buildx-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.arch }}-buildx-${{ github.ref_name }}-
+            ${{ runner.os }}-${{ matrix.arch }}-buildx-
 
-          tags: |
-            # Branch name
-            type=ref,event=branch
-
-            # Semantic version tags
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-            # SHA tag
-            type=sha,prefix=sha-
-
-            # Latest tag only for main/production
-            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/production' }}
-
-            # Manual custom tag
-            type=raw,value=${{ github.event.inputs.tag }},enable=${{ github.event.inputs.tag != '' }}
-
-            # branch-shortsha
-            type=raw,value=${{ github.ref_name }}-${{ steps.vars.outputs.SHORT_SHA }}
-
-            # branch-runNumber-shortsha
-            type=raw,value=${{ github.ref_name }}-${{ github.run_number }}-${{ steps.vars.outputs.SHORT_SHA }}
-
-          labels: |
-            org.opencontainers.image.title=${{ env.IMAGE_NAME }}
-            org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.created=${{ github.run_id }}
-
-      - name: Build and push Docker image
+      - name: Build and push arch-specific image
+        id: build
         uses: docker/build-push-action@v5
         with:
           context: .
           file: docker/prod.Dockerfile
-
+          platforms: ${{ matrix.platform }}
           push: true
+          tags: |
+            ${{ env.REGISTRY }}/care-ecosystem/care:${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}-${{ matrix.arch }}
+            ${{ env.REGISTRY }}/care-ecosystem/care-backend:${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}-${{ matrix.arch }}
+            ${{ env.REGISTRY }}/care-ecosystem/care-celery:${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}-${{ matrix.arch }}
+          labels: ${{ needs.prepare.outputs.labels }}
+          cache-from: ${{ github.event_name != 'repository_dispatch' && 'type=local,src=/tmp/.buildx-cache' || '' }}
+          cache-to:   ${{ github.event_name != 'repository_dispatch' && 'type=local,dest=/tmp/.buildx-cache,mode=max' || '' }}
+          no-cache:   ${{ github.event_name == 'repository_dispatch' }}
 
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+  # ── Job 3: Combine arch digests → multi-arch manifest for every final tag ────
+  create-manifest:
+    name: Create Multi-Arch Manifest
+    needs: [prepare, build-matrix]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
 
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Output image details
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and push multi-arch manifests
         run: |
-          echo "## Docker Image Built Successfully! :whale:" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
+          STAGING_TAG="${{ github.ref_name }}-${{ needs.prepare.outputs.short_sha }}"
 
-          echo "**Image:** \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.prepare.outputs.tags }}" | while IFS= read -r FULL_TAG; do
+            [ -z "$FULL_TAG" ] && continue
+
+            IMAGE="${FULL_TAG%%:*}"
+
+            echo "→ Resolving digests for ${IMAGE}:${STAGING_TAG}-amd64 / arm64"
+
+            AMD64_DIGEST=$(docker buildx imagetools inspect \
+              "${IMAGE}:${STAGING_TAG}-amd64" \
+              --format '{{json .}}' \
+              | jq -r '.manifest.manifests[] | select(.platform.architecture=="amd64" and .platform.os=="linux") | .digest')
+
+            ARM64_DIGEST=$(docker buildx imagetools inspect \
+              "${IMAGE}:${STAGING_TAG}-arm64" \
+              --format '{{json .}}' \
+              | jq -r '.manifest.manifests[] | select(.platform.architecture=="arm64" and .platform.os=="linux") | .digest')
+
+            if [ -z "$AMD64_DIGEST" ] || [ -z "$ARM64_DIGEST" ]; then
+              echo "❌ Failed to resolve digests for $IMAGE — skipping $FULL_TAG"
+              continue
+            fi
+
+            echo "   amd64: $AMD64_DIGEST"
+            echo "   arm64: $ARM64_DIGEST"
+
+            docker buildx imagetools create \
+              --tag "$FULL_TAG" \
+              "${IMAGE}@${AMD64_DIGEST}" \
+              "${IMAGE}@${ARM64_DIGEST}"
+
+            echo "✅ Pushed manifest: $FULL_TAG"
+          done
+
+      - name: Summary
+        run: |
+          echo "## 🐳 Multi-Arch Image Built Successfully!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Platforms:** \`linux/amd64\`, \`linux/arm64\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit SHA:** \`${{ needs.prepare.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Images:**" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-backend\`" >> $GITHUB_STEP_SUMMARY
+          echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-celery\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
 
           echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
@@ -118,5 +211,5 @@ jobs:
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
 
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "${{ needs.prepare.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
