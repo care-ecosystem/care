@@ -6,6 +6,7 @@ on:
       - develop
       - dev
       - main
+      - plugins
       - production
     tags:
       - 'v*'
@@ -201,7 +202,14 @@ jobs:
           echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-backend\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-celery\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit SHA:** \`${{ steps.vars.outputs.SHORT_SHA }}\`" >> $GITHUB_STEP_SUMMARY
+
+          echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ needs.prepare.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
