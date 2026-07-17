@@ -83,7 +83,9 @@ plugs = [
         name="care_state_hmis",
         package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
         version="@main", 
-        configs={}
+        configs={
+            "HMIS_INVOICE_ALLOW_REVISIT_ACROSS_DEPARTMENTS": "False"
+        }
     ),
     Plug(
         name="care_pinelabs",
