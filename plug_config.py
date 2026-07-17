@@ -79,6 +79,12 @@ plugs = [
             )
         }
     ),  
+     Plug(
+        name="care_state_hmis",
+        package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
+        version="@main", 
+        configs={}
+    ),
     Plug(
         name="care_pinelabs",
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
