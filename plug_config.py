@@ -100,6 +100,9 @@ plugs = [
             ),
             "PINELABS_API_BASE_URL": os.getenv(
                 "PINELABS_API_BASE_URL"
+            ),
+            "PINELABS_SECRET_KEY": os.getenv(
+                "PINELABS_SECRET_KEY"
             )
         }
     ),
