@@ -92,12 +92,6 @@ plugs = [
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
         version="@main",
         configs={
-            "PINELABS_MERCHANT_ID": os.getenv(
-                "PINELABS_MERCHANT_ID"
-            ),
-            "PINELABS_SECURITY_TOKEN": os.getenv(
-                "PINELABS_SECURITY_TOKEN"
-            ),
             "PINELABS_API_BASE_URL": os.getenv(
                 "PINELABS_API_BASE_URL"
             ),
