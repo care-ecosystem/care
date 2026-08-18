@@ -202,14 +202,46 @@ jobs:
           echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-backend\`" >> $GITHUB_STEP_SUMMARY
           echo "- \`${{ env.REGISTRY }}/care-ecosystem/care-celery\`" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          echo "**Branch:** \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Run Number:** \`${{ github.run_number }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Commit SHA:** \`${{ steps.vars.outputs.SHORT_SHA }}\`" >> $GITHUB_STEP_SUMMARY
-
-          echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
-
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
           echo "${{ needs.prepare.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # ── Job 4: Trigger deployments after successful build ─────────────────────────
+  trigger-deployment:
+    name: Trigger Deployment
+    needs: [prepare, create-manifest]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    permissions:
+      contents: read
+
+    steps:
+      - name: Trigger Backend Deployment
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: deploy-to-care
+          client-payload: |
+            {
+              "environment": "dev",
+              "image_name": "ghcr.io/care-ecosystem/care-backend:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}"
+            }
+
+      - name: Trigger Celery Deployment
+        uses: peter-evans/repository-dispatch@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          event-type: deploy-to-care
+          client-payload: |
+            {
+              "environment": "dev",
+              "image_name": "ghcr.io/care-ecosystem/care-celery:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}"
+            }
+
+      - name: Deployment trigger summary
+        run: |
+          echo "## 🚀 Deployment Triggered to Dev" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Backend:** \`ghcr.io/care-ecosystem/care-backend:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Celery:** \`ghcr.io/care-ecosystem/care-celery:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
