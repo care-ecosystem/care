@@ -212,34 +212,11 @@ jobs:
     name: Trigger Deployment
     needs: [prepare, create-manifest]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/production' || github.ref == 'refs/heads/main')
+    if: github.event_name == 'push'
     permissions:
       contents: read
 
     steps:
-      - name: Determine environment and image tags
-        id: deploy-params
-        run: |
-          # Determine environment from branch
-          case "${{ github.ref_name }}" in
-            production|main)
-              echo "environment=production" >> $GITHUB_OUTPUT
-              ;;
-            develop)
-              echo "environment=staging" >> $GITHUB_OUTPUT
-              ;;
-            dev)
-              echo "environment=dev" >> $GITHUB_OUTPUT
-              ;;
-            *)
-              echo "environment=dev" >> $GITHUB_OUTPUT
-              ;;
-          esac
-
-          # Image tag format: branch-run_number-short_sha
-          IMAGE_TAG="${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}"
-          echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
-
       - name: Trigger Backend Deployment
         uses: peter-evans/repository-dispatch@v3
         with:
@@ -247,8 +224,8 @@ jobs:
           event-type: deploy-to-care
           client-payload: |
             {
-              "environment": "${{ steps.deploy-params.outputs.environment }}",
-              "image_name": "ghcr.io/care-ecosystem/care-backend:${{ steps.deploy-params.outputs.image_tag }}"
+              "environment": "dev",
+              "image_name": "ghcr.io/care-ecosystem/care-backend:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}"
             }
 
       - name: Trigger Celery Deployment
@@ -258,15 +235,13 @@ jobs:
           event-type: deploy-to-care
           client-payload: |
             {
-              "environment": "${{ steps.deploy-params.outputs.environment }}",
-              "image_name": "ghcr.io/care-ecosystem/care-celery:${{ steps.deploy-params.outputs.image_tag }}"
+              "environment": "dev",
+              "image_name": "ghcr.io/care-ecosystem/care-celery:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}"
             }
 
       - name: Deployment trigger summary
         run: |
-          echo "## 🚀 Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "## 🚀 Deployment Triggered to Dev" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Environment:** \`${{ steps.deploy-params.outputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Backend:** \`ghcr.io/care-ecosystem/care-backend:${{ steps.deploy-params.outputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "**Celery:** \`ghcr.io/care-ecosystem/care-celery:${{ steps.deploy-params.outputs.image_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Backend:** \`ghcr.io/care-ecosystem/care-backend:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Celery:** \`ghcr.io/care-ecosystem/care-celery:${{ github.ref_name }}-${{ github.run_number }}-${{ needs.prepare.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
