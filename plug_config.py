@@ -9,14 +9,14 @@ plugs = [
     #     version="@develop",
     #     configs={},
     # ),
-    
+
     # Plug(
     #     name="nhcx",
     #     package_name="git+https://github.com/ohcnetwork/care_nhcx.git",
     #     version="@develop",
     #     configs={},
     # ),
-    
+
     Plug(
         name="super_batch_request",
         package_name="git+https://github.com/care-ecosystem/care_super_batch_be.git",
@@ -78,11 +78,11 @@ plugs = [
                 "EAUSHADHI_VALIDATION_ENABLED"
             )
         }
-    ),  
+    ),
      Plug(
         name="care_state_hmis",
         package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
-        version="@main", 
+        version="@main",
         configs={
             "HMIS_INVOICE_ALLOW_REVISIT_ACROSS_DEPARTMENTS": "False"
         }
@@ -92,14 +92,24 @@ plugs = [
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
         version="@main",
         configs={
-            "PINELABS_MERCHANT_ID": os.getenv(
-                "PINELABS_MERCHANT_ID"
-            ),
-            "PINELABS_SECURITY_TOKEN": os.getenv(
-                "PINELABS_SECURITY_TOKEN"
-            ),
             "PINELABS_API_BASE_URL": os.getenv(
                 "PINELABS_API_BASE_URL"
+            ),
+            "PINELABS_SECRET_KEY": os.getenv(
+                "PINELABS_SECRET_KEY"
+            )
+        }
+    ),
+    Plug(
+        name="care_dvdms",
+        package_name="git+https://github.com/care-ecosystem/care_dvdms.git",
+        version="@main",
+        configs={
+            "DVDMS_API_ENDPOINT": os.getenv(
+                "DVDMS_API_ENDPOINT"
+            ),
+            "DVDMS_AUTH_TOKEN": os.getenv(
+                "DVDMS_AUTH_TOKEN"
             )
         }
     ),

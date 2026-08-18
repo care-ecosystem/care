@@ -12,7 +12,7 @@ on:
       - 'v*'
 
   repository_dispatch:
-    types: [eaushadhi-plugin-updated, radiology-plugin-updated, pinelabs-plugin-updated,]
+    types: [eaushadhi-plugin-updated, radiology-plugin-updated, pinelabs-plugin-updated, dvdms-plugin-updated,]
 
   workflow_dispatch:
     inputs:
