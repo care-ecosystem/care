@@ -1,0 +1,54 @@
+name: Deploy to Care
+
+on:
+  repository_dispatch:
+    types: [deploy-to-care]
+
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - staging
+          - production
+      image_name:
+        description: 'Docker image to deploy (e.g., ghcr.io/care-ecosystem/care-backend:dev-123-abc123)'
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy ${{ github.event.inputs.image_name || github.event.client_payload.image_name }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment || github.event.client_payload.environment }}
+
+    steps:
+      - name: Extract parameters
+        id: params
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            echo "image_name=${{ github.event.inputs.image_name }}" >> $GITHUB_OUTPUT
+          else
+            echo "image_name=${{ github.event.client_payload.image_name }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger Jenkins Build
+        run: |
+          curl -X POST "${{ vars.JENKINS_URL }}/buildWithParameters" \
+            --user ${{ secrets.JENKINS_USER }}:${{ secrets.JENKINS_TOKEN }} \
+            --data-urlencode "Images=${{ steps.params.outputs.image_name }}"
+
+          echo "✅ Jenkins deployment triggered"
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment Triggered" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Jenkins URL:** ${{ vars.JENKINS_URL }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** \`${{ steps.params.outputs.image_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered by:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
