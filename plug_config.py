@@ -79,13 +79,38 @@ plugs = [
             )
         }
     ),
-     Plug(
-        name="care_state_hmis",
+    Plug(
+            name="encounter_access_authorization",
+            package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
+            version="@next",
+                    configs={}
+
+        ),
+        Plug(
+        name="encounter_identifiers",
         package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
-        version="@main",
-        configs={
-            "HMIS_INVOICE_ALLOW_REVISIT_ACROSS_DEPARTMENTS": "False"
-        }
+        version="@next",
+               configs={}
+
+    ),
+    Plug(
+        name="patient_demographics",
+        package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
+        version="@next",
+        configs={"HMIS_EXTENSIONS_ENABLE_LOCATION_KIND":"True","HMIS_EXTENSIONS_ENABLE_ATTENDER":"True","HMIS_EXTENSIONS_LOCATION_REQUIRED":"True","HMIS_EXTENSIONS_PATIENT_RELIGION_REQUIRED":"True"}
+    ),
+    Plug(
+        name="appointment_invoice_payment",
+        package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
+        version="@next",
+        configs={}
+    ),
+    Plug(
+        name="invoice_auto_balance",
+        package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
+        version="@next",
+                configs={}
+
     ),
     Plug(
         name="care_pinelabs",
