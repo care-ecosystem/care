@@ -8,11 +8,14 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          persist-credentials: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
       - name: Set up Git
         run: |
@@ -57,4 +60,4 @@ jobs:
         run: |
           git add .github/workflows/
           git commit -m "Restore custom workflows after upstream sync" || true
-          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git develop --force
+          git push origin develop --force
