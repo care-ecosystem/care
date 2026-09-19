@@ -44,6 +44,7 @@ jobs:
         run: |
           mkdir -p /tmp/saved-workflows
           cp .github/workflows/sync-fork-with-upstream.yml /tmp/saved-workflows/ 2>/dev/null || true
+          cp .github/workflows/docker-build.yml /tmp/saved-workflows/ 2>/dev/null || true
 
       - name: Reset to upstream
         if: steps.check.outputs.changed == 'true'
@@ -54,6 +55,7 @@ jobs:
         run: |
           mkdir -p .github/workflows
           cp /tmp/saved-workflows/sync-fork-with-upstream.yml .github/workflows/ 2>/dev/null || true
+          cp /tmp/saved-workflows/docker-build.yml .github/workflows/ 2>/dev/null || true
 
       - name: Commit and push
         if: steps.check.outputs.changed == 'true'
