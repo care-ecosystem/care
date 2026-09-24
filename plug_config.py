@@ -33,7 +33,8 @@ plugs = [
             ),
             "CARE_RADIOLOGY_WEBHOOK_SECRET": os.getenv(
                 "CARE_RADIOLOGY_WEBHOOK_SECRET"
-            )
+            ),
+            "CARE_RADIOLOGY_RATE_LIMIT_DICOM_UPLOAD_EXTERNAL": "1800/m"
         }
     ),
      Plug(
