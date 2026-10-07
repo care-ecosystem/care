@@ -58,7 +58,29 @@ plugs = [
         name="care_scribe",
         package_name="git+https://github.com/10bedicu/care_scribe.git",
         version="@master",
-        configs={},
+        configs={
+            "SCRIBE_CHAT_MODEL_NAME":  os.getenv(
+                "SCRIBE_CHAT_MODEL_NAME"
+            ),
+             "SCRIBE_TRANSCRIBE_MODEL_NAME":  os.getenv(
+                "SCRIBE_AUDIO_MODEL_NAME"
+            ),
+             "SCRIBE_GOOGLE_PROJECT_ID":  os.getenv(
+                "SCRIBE_GOOGLE_PROJECT_ID"
+            ),
+             "SCRIBE_GOOGLE_LOCATION":  os.getenv(
+                "SCRIBE_GOOGLE_LOCATION"
+            ),  
+            "SCRIBE_API_PROVIDER":  os.getenv(
+                "SCRIBE_API_PROVIDER"
+            ),
+            "SCRIBE_GOOGLE_APPLICATION_CREDENTIALS_B64":  os.getenv(
+                "SCRIBE_GOOGLE_APPLICATION_CREDENTIALS_B64"
+            ),
+            "SCRIBE_TNC":  os.getenv(
+                "SCRIBE_TNC"
+            )
+        },
     ),
     Plug(
         name="care_eaushadhi",
