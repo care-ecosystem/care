@@ -136,11 +136,18 @@ plugs = [
 
     ),
      Plug(
-        name="invoice_auto_balance",
+        name="analytics",
         package_name="git+https://github.com/ohcnetwork/analytics_plug.git",
         version="@main",
-                configs={}
-
+                configs={
+             "METABASE_SITE_URL": os.getenv(
+                "METABASE_SITE_URL"
+            ),
+            "METABASE_SECRET_KEY": os.getenv(
+                "METABASE_SECRET_KEY"
+            )
+                    
+                }
     ),
     Plug(
         name="care_pinelabs",
