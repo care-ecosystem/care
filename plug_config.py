@@ -135,6 +135,20 @@ plugs = [
                 configs={}
 
     ),
+     Plug(
+        name="analytics",
+        package_name="git+https://github.com/ohcnetwork/analytics_plug.git",
+        version="@main",
+                configs={
+             "METABASE_SITE_URL": os.getenv(
+                "METABASE_SITE_URL"
+            ),
+            "METABASE_SECRET_KEY": os.getenv(
+                "METABASE_SECRET_KEY"
+            )
+                    
+                }
+    ),
     Plug(
         name="care_pinelabs",
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
