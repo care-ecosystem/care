@@ -135,6 +135,13 @@ plugs = [
                 configs={}
 
     ),
+     Plug(
+        name="invoice_auto_balance",
+        package_name="git+https://github.com/ohcnetwork/analytics_plug.git",
+        version="@main",
+                configs={}
+
+    ),
     Plug(
         name="care_pinelabs",
         package_name="git+https://github.com/care-ecosystem/care_pinelabs.git",
