@@ -26,7 +26,7 @@ plugs = [
     Plug(
         name="care_radiology",
         package_name="git+https://github.com/care-ecosystem/care_radiology.git",
-        version="@main",
+        version="@dev",
         configs={
             "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL": os.getenv(
                 "CARE_RADIOLOGY_DCM4CHEE_DICOMWEB_BASEURL"
