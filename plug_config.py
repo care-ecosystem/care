@@ -112,7 +112,7 @@ plugs = [
                     configs={}
 
         ),
-        Plug(
+    Plug(
         name="encounter_identifiers",
         package_name="git+https://github.com/care-ecosystem/care_state_hmis.git",
         version="@next",
@@ -165,6 +165,7 @@ plugs = [
             )
         }
     ),
+    
     Plug(
         name="care_dvdms",
         package_name="git+https://github.com/care-ecosystem/care_dvdms.git",
@@ -178,12 +179,35 @@ plugs = [
             )
         }
     ),
-    Plug(
-        name="care_communication",
-        package_name="git+https://github.com/care-ecosystem/care_communication_plugin.git",
-        version="@updates",
+     Plug(
+    name="care_celery_flower",
+    package_name="git+https://github.com/egovhealthcare/care_celery_flower.git",
+    version="@main",
+    configs={
+        "FLOWER_PORT": 5555,
+        "FLOWER_BASIC_AUTH": os.getenv(
+                "FLOWER_BASIC_AUTH"
+            )
+        },
+    ),
+        Plug(
+        name="gateway_device",
+        package_name="git+https://github.com/care-ecosystem/care_teleicu_devices.git",
+        version="@lis-stable",
         configs={},
-    )
+    ),
+    Plug(
+        name="camera_device",
+        package_name="git+https://github.com/care-ecosystem/care_teleicu_devices.git",
+        version="@lis-stable",
+        configs={},
+    ),
+    Plug(
+        name="vitals_observation_device",
+        package_name="git+https://github.com/care-ecosystem/care_teleicu_devices.git",
+        version="@lis-stable",
+        configs={},
+    ),
 ]
 
 manager = PlugManager(plugs)
