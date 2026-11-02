@@ -3,12 +3,12 @@ from plugs.manager import PlugManager
 from plugs.plug import Plug
 
 plugs = [
-    # Plug(
-    #     name="abdm",
-    #     package_name="git+https://github.com/care-ecosystem/care_abdm.git",
-    #     version="@develop",
-    #     configs={},
-    # ),
+    Plug(
+        name="abdm",
+        package_name="git+https://github.com/10bedicu/care_abdm.git",
+        version="@develop",
+        configs={},
+    ),
 
     # Plug(
     #     name="nhcx",
