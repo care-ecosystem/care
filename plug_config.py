@@ -169,7 +169,7 @@ plugs = [
     Plug(
         name="care_dvdms",
         package_name="git+https://github.com/care-ecosystem/care_dvdms.git",
-        version="@main",
+        version="@dev",
         configs={
             "DVDMS_API_ENDPOINT": os.getenv(
                 "DVDMS_API_ENDPOINT"
