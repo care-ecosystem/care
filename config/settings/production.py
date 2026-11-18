@@ -2,6 +2,7 @@ from .deployment import *  # noqa
 
 REST_FRAMEWORK["DEFAULT_AUTHENTICATION_CLASSES"] = (  # noqa F405
     "config.authentication.CustomJWTAuthentication",
+    "rest_framework.authentication.TokenAuthentication",
 )
 
 IS_PRODUCTION = True
