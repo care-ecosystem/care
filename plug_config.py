@@ -10,12 +10,6 @@ plugs = [
     #     configs={},
     # ),
 
-    # Plug(
-    #     name="nhcx",
-    #     package_name="git+https://github.com/ohcnetwork/care_nhcx.git",
-    #     version="@develop",
-    #     configs={},
-    # ),
 
     Plug(
         name="super_batch_request",
